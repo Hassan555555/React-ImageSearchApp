@@ -1,28 +1,49 @@
-import './App.css';
-import React from "react"
-import SearchBar from "./SearchBar"
-import unsplash from "./unsplash"
-import ImageList from "./ImageList"
+import React from 'react'
+import SearchBar from './SearchBar'
+import VideoDetail from './VideoDetail'
+import VideoList from './VideoList'
+import youtube from './youtube'
 
 class App extends React.Component {
-  state = { images: [] }
+  state = { videos: [], selectedVideo: null }
 
-  onSearchSubmit = async (term) => {
-    const response = await unsplash.get('/search/photos', {
-      params: { query: term } 
-    })
-    this.setState({ images: response.data.results })
+  componentDidMount() {
+    this.onTermSubmit('Cyberpunk 2077')
   }
 
-  render () {
+  onTermSubmit = async (input) => {
+    const response = await youtube.get('', {
+      params: {
+        q: input,
+      }
+    })
+    this.setState({ 
+      videos: response.data.items,
+      selectedVideo: response.data.items[0]
+     })
+  }
+
+  onVideoSelect = (video) => {
+    this.setState({ selectedVideo: video })
+  }
+
+  render() {
     return (
-      <div className="ui-container">
-        <SearchBar onSubmit={this.onSearchSubmit} />
-        <ImageList images={this.state.images} />
+      <div className="ui container">
+        <SearchBar onFormSubmit={this.onTermSubmit} />
+        <div className="ui grid">
+          <div className="ui row">
+            <div className="eleven wide column">
+              <VideoDetail video={this.state.selectedVideo} />
+            </div>
+            <div className="five wide column">
+              <VideoList onVideoSelect={this.onVideoSelect} videos={this.state.videos} />
+            </div>
+          </div>
+        </div>
       </div>
     )
   }
 }
 
-
-export default App;
+export default App
